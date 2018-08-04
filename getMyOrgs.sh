@@ -18,8 +18,8 @@ fi
 # Get # pages of users
 user_pages=$(cf curl /v2/users?results-per-page=100 | jq -r '.total_pages')
 
-# Get the orgs url and spaces url for the given user
-# page=1; while page <= $user_pages; do orgs_url; if found url, break/continue, else user not found after all pages searched
+# Find the number of 'pages' of users, 100 users per page
+# Get the orgs url for the given user
 user_page=1
 echo "Found $user_pages pages full of happy little users"
 while (( $user_page <= $user_pages )); do
@@ -40,7 +40,6 @@ if [[ -z $orgs_url ]]; then
   printf "\nThe user '$user' cannot be found\n\n"
   exit 1
 fi
-
 
 # Get the orgs for the given user
 user_orgs=$(cf curl $orgs_url | jq -r '.resources | .[].entity.name')
