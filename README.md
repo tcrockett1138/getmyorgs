@@ -6,7 +6,7 @@
 
 ```cf login -a https://api.local.pcfdev.io --skip-ssl-validation```
 
-**Find some orgs for user201**
+**Find some orgs for ```user201```**
 
 ```
 ./getmyorgs.sh user201
