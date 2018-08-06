@@ -10,8 +10,8 @@ fi
 user=$1
 
 # Check to see if we're logged in and targeted
-if ! cf target 2&>1; then
-  echo No cf target found.  Please log in first...
+if ! cf api | grep "Not Logged in"  2>&1; then
+  echo Not logged in. Use 'cf login' to log in.
   exit 1
 fi
 
