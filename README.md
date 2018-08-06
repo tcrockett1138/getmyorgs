@@ -1,12 +1,12 @@
-Usage:
+# Usage:
 
-getmyorgs.sh <username>
+```getmyorgs.sh <username>```
 
-Login to a cf environment
+**Login to a cf environment**
 
 ```cf login -a https://api.local.pcfdev.io --skip-ssl-validation```
 
-Find some orgs
+**Find some orgs for user201**
 
 ```
 ./getmyorgs.sh user201
