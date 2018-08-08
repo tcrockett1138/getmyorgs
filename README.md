@@ -1,5 +1,5 @@
 # Usage:
-
+## LETS REMEMBER TO MAKE SOME UPDATES HERE TO REFLECT UPDATED USAGE FOR BOTH COMMANDS!!!
 ```getmyorgs.sh <username>```
 
 **Login to a cf environment**
