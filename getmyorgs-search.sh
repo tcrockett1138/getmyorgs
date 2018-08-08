@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 # Given a search string, find all the orgs for all users that match that string
 
@@ -10,8 +10,7 @@ fi
 user=$1
 
 # Check to see if we're logged in and targeted
-if cf api | grep "Not Logged in"  2>&1; then
-  echo Not logged in. Use 'cf login' to log in.
+if ! cf target 2>&1 > /dev/null; then
   exit 1
 fi
 
@@ -24,34 +23,38 @@ user_page=1
 i=0
 echo "Found $user_pages pages full of happy little users"
 echo "Searching all the happy little users can take some time, please be patient"
-echo user_page $user_page
-echo user_pages $user_pages
 while (( $user_page <= $user_pages )); do
+  printf "\nWorking on page $user_page of $user_pages\n"
   for user_url in $(cf curl /v2/users?results-per-page=100\&page=$user_page | jq -r '.resources[].metadata.url'); do
-    user_urls[i]=$user_url
-    # echo i is $i
-    # echo user_urls_i ${user_urls[i]}
-    (( i++ ))
+    if [[ $(cf curl $user_url? | jq -r --arg user "$user" 'select (.entity.username | contains($user))') ]]; then
+      user_urls[i]=$user_url
+      ## echo user_urls_i ${user_urls[i]}
+      (( i++ ))
+    fi
+    printf "."
   done
-  # echo user_page is $user_page  
   (( user_page++ ))
 done
 
+## Print the index and value of each element in the user_urls array
+## Useful for debugging
+## for j in "${!user_urls[@]}"; do
+##  printf "%s\t%s\n" "$j" "${user_urls[$j]}"
+## done
+
 # Test if user_url is still not set after searching all the pages
-# If user_url is empty, that means that the given username string was not found
-##### need to fix this test #####
-if [[ -z $user_url ]]; then
+# If user_urls is empty, that means that the given username string was not found
+if (( ${#user_urls[@]} == 0 )); then
   printf "\nNo users matching the string '$user' can be found\n\n"
   exit 1
 else
-  echo "found $i matches to $user"
+  printf "\nFound ${#user_urls[@]} users matching '$user'\n"
 fi
 
 # Get the orgs for the matched users
+# Itereate through all the user_urls and get the username and orgs for each user
 i=0
-###  Itereate through all the user_urls and get the username and orgs for each user
-while (( i < ${#user_urls[@]} )); do
-  # user_orgs=$(cf curl ${user_urls[i]}? | jq -r '.resources | .[].entity.organizations_url')
+while (( $i < ${#user_urls[@]} )); do
   user_orgs=$(cf curl $(cf curl ${user_urls[i]} | jq -r '.entity.organizations_url') | jq -r '.resources[].entity.name')
   user_name=$(cf curl ${user_urls[i]}? | jq -r '.entity.username')
   printf "\nThe user '$user_name' is a member of the following orgs:\n"
